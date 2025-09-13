@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Upsilon GDPS - A Geometry Dash Private Server focused on your dream." />
+  <title>Upsilon GDPS | Contact</title>
+  <link rel="icon" href="https://nahhhh.ps.fhgdps.com/dashboard/icon.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* — VARIABLES & RESET — */
+:root {
+  --primary: #ff6fae;        /* 진한 핑크 */
+  --secondary: #ff8fc9;      /* 연한 핑크 */
+  --dark: #2a001f;           /* 어두운 핑크 배경 */
+  --dark-alt: #3a0029;       /* 보조 배경 */
+  --light: #ffffff;          /* 텍스트는 그대로 */
+  --accent: #ffaadf;         /* 포인트 핑크 */
+  --accent-hover: #ffc4eb;   /* hover 시 연핑크 */
+  --radius: 8px;
+  --transition: all 0.2s ease;
+  --shadow: 0 1px 2px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-hover: 0 1px 3px rgba(0,0,0,0.12), 0 1px 8px rgba(0,0,0,0.12);
+  font-size: clamp(14px, 1.2vw, 16px);
+}
+
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
+      background: var(--dark);
+      color: var(--light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      min-height: 100vh;
+      line-height: 1.5;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(66, 66, 66, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(66, 66, 66, 0.05) 0%, transparent 40%);
+    }
+
+    /* — STRUCTURE — */
+    .container {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* — HEADER — */
+    header {
+      text-align: center;
+      margin: 1.5rem 0;
+      padding: 0 1rem;
+    }
+
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--secondary);
+      box-shadow: var(--shadow);
+    }
+
+    .title {
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
+      color: var(--light);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: var(--secondary);
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      font-weight: 400;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* — NAVIGATION GRID — */
+    nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    nav a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 0.5rem;
+      border-radius: var(--radius);
+      background: var(--dark-alt);
+      color: var(--light);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+      border: 1px solid #3f123f;
+      text-align: center;
+      font-size: 0.9rem;
+      min-height: 80px;
+      box-shadow: var(--shadow);
+    }
+
+    nav a:hover {
+      background: #3f123f;
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    nav a i {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: var(--accent);
+    }
+
+    /* — CONTENT CARDS — */
+    .card {
+      background: var(--dark-alt);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      border: 1px solid #3f123f;
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-header i {
+      font-size: 1.25rem;
+      color: var(--accent);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      color: var(--light);
+      font-weight: 500;
+    }
+
+    .card-content {
+      color: var(--secondary);
+      line-height: 1.6;
+    }
+
+    /* — BUTTONS — */
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.75rem;
+      background: var(--accent);
+      color: var(--dark);
+      border: none;
+      border-radius: var(--radius);
+      font-weight: 500;
+      text-decoration: none;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .cta-button:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* — IFRAMES — */
+    .media {
+      width: 100%;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    iframe {
+      width: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* — FEATURES — */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .feature {
+      background: var(--dark-alt);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      border: 1px solid #3f123f;
+      text-align: center;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+    }
+
+    .feature:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--accent);
+    }
+
+    .feature i {
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .feature h3 {
+      color: var(--light);
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+    }
+
+    .feature p {
+      color: var(--secondary);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* — FOOTER — */
+    footer {
+      margin-top: 2rem;
+      padding: 1.5rem 0;
+      font-size: 0.9rem;
+      color: var(--secondary);
+      text-align: center;
+      border-top: 1px solid #3f123f;
+      width: 100%;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--secondary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+
+    /* — RESPONSIVE ADJUSTMENTS — */
+    @media (max-width: 768px) {
+      nav {
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      }
+      
+      .features {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      nav {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .card {
+        padding: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo-container">
+        <img src="https://fless.ps.fhgdps.com/dashboard/icon.png" class="icon" alt="FreedomGDPS Icon">
+      </div>
+      <h1 class="title">Contacts</h1>
+      <p class="subtitle">You can contact our socials for anything.</p>
+    </header>
+
+    <nav>
+      <a href="/index.html"><i class="fas fa-home"></i> Main Page</a>
+      <a href="/terms.html"><i class="fas fa-file-contract"></i> Terms of Service</a>
+      <a href="/feedback"><i class="fas fa-question-circle"></i> Feedback Board</a>
+      <a href="/contact.html" class="active"><i class="fas fa-envelope"></i> Contact</a>
+    </nav>
+    <!-- Gantilah bagian ini saja -->
+<!-- Section: User Conduct -->
+<div class="card">
+  <div class="card-header">
+    <i class="fas fa-user-shield"></i>
+    <h2 class="card-title">Direct Message</h2>
+  </div>
+  <div class="card-content">
+    <p>You can contact us directly through the following platforms:</p>
+    <ul style="list-style-type: disc; padding-left: 1.5rem; margin-top: 1rem;">
+      <li>
+        Discord DM: 
+        <a href="https://discordapp.com/users/1188352458490122291" target="_blank" style="color: var(--accent); text-decoration: underline;">
+          Contact owner
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Section: Community Chat -->
+<div class="card">
+  <div class="card-header">
+    <i class="fas fa-users"></i>
+    <h2 class="card-title">Community Chat</h2>
+  </div>
+  <div class="card-content">
+    <p>Join our Discord Server here:</p>
+    <ul style="list-style-type: disc; padding-left: 1.5rem; margin-top: 1rem;">
+      <li>
+        Discord Server: 
+        <a href="https://discord.gg/cY8jBwKZkM" target="_blank" style="color: var(--accent); text-decoration: underline;">
+          Join here
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+    <footer>
+      <p>Website by Upsilony • Upsilon GDPS &copy; <span id="year"></span></p>
+      <div class="footer-links">
+        <a href="/terms.html"><i class="fas fa-file-contract"></i> Terms of Service</a>
+        <a href="/feedback"><i class="fas fa-question-circle"></i> Feedback Board</a>
+        <a href="/contact.html"><i class="fas fa-envelope"></i> Contact</a>
+        <a href="https://stats.uptimerobot.com/wpCeS1LMcH"><i class="fas fa-server"></i> Server Status</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
