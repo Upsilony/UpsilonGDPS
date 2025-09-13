@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feedback Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body class="bg-gray-100">
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+
+      function FeedbackBoard() {
+        const [posts, setPosts] = useState(() => {
+          const saved = localStorage.getItem("feedback_posts");
+          return saved ? JSON.parse(saved) : [];
+        });
+        const [newTitle, setNewTitle] = useState("");
+        const [newDesc, setNewDesc] = useState("");
+        const [newAuthor, setNewAuthor] = useState("");
+        const [isModalOpen, setIsModalOpen] = useState(false);
+
+        useEffect(() => {
+          localStorage.setItem("feedback_posts", JSON.stringify(posts));
+        }, [posts]);
+
+        const addPost = () => {
+          if (!newTitle.trim() || !newAuthor.trim()) return;
+          const newPost = {
+            id: Date.now(),
+            title: newTitle,
+            description: newDesc,
+            votes: 0,
+            author: newAuthor,
+          };
+          setPosts([newPost, ...posts]);
+          setNewTitle("");
+          setNewDesc("");
+          setNewAuthor("");
+          setIsModalOpen(false);
+        };
+
+        const votePost = (id) => {
+          setPosts(
+            posts.map((p) =>
+              p.id === id ? { ...p, votes: p.votes + 1 } : p
+            )
+          );
+        };
+
+        return (
+          <div className="max-w-3xl mx-auto p-6">
+            <h1 className="text-2xl font-bold mb-4">Feedback Board</h1>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="mb-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+            >
+              + New Feedback
+            </button>
+
+            {posts.length === 0 ? (
+              <p className="text-gray-500">No feedback yet. Be the first!</p>
+            ) : (
+              <div className="space-y-4">
+                {posts.map((post) => (
+                  <div
+                    key={post.id}
+                    className="p-4 bg-white rounded-xl shadow flex justify-between items-center"
+                  >
+                    <div>
+                      <h2 className="font-semibold">{post.title}</h2>
+                      <p className="text-sm text-gray-600">{post.description}</p>
+                      <p className="text-xs text-gray-400">
+                        by {post.author}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => votePost(post.id)}
+                      className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+                    >
+                      ▲ {post.votes}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {isModalOpen && (
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                <div className="bg-white p-6 rounded-xl shadow-lg w-96">
+                  <h2 className="text-xl font-bold mb-4">New Feedback</h2>
+                  <input
+                    type="text"
+                    placeholder="Your nickname"
+                    value={newAuthor}
+                    onChange={(e) => setNewAuthor(e.target.value)}
+                    className="w-full border p-2 rounded mb-2"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Title"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    className="w-full border p-2 rounded mb-2"
+                  />
+                  <textarea
+                    placeholder="Description (optional)"
+                    value={newDesc}
+                    onChange={(e) => setNewDesc(e.target.value)}
+                    className="w-full border p-2 rounded mb-2"
+                  />
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      onClick={() => setIsModalOpen(false)}
+                      className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={addPost}
+                      className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<FeedbackBoard />);
+    </script>
+  </body>
+</html>
