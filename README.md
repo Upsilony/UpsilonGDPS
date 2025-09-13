@@ -40,8 +40,6 @@
 ```
 
 ### Plans
-- **Platformer List** (WIP)
-- **Tools Page** (Fork and modifying the FreedomGDPS!!11 tools later)
 - **Better user supports and more features in-game**
 - **Making your dream come true**
 
