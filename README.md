@@ -52,7 +52,7 @@
 ### GDPS 
 🌐 [Website & GDPS Switcher Link](https://nahhhh.ps.fhgdps.com/)  
 ⚙️ [Dashboard](https://nahhhh.ps.fhgdps.com/dashboard/)  
-📩 [Download GDPS](https://nahhhh.ps.fhgdps.com/install.html/)  
+📩 [Download GDPS](https://upsilongdps.netlify.app/download/)  
 🟢 [Server Status](https://stats.uptimerobot.com/wpCeS1LMcH)  
 
 ### Lists
