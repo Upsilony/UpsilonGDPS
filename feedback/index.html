@@ -22,49 +22,56 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    function uid(prefix = "") {
-      return prefix + Math.random().toString(36).slice(2, 9);
-    }
-
     function FeedbackBoard({ embed = false }) {
       const [items, setItems] = useState([]);
       const [q, setQ] = useState("");
       const [category, setCategory] = useState("All");
       const [sort, setSort] = useState("hot");
+      const [loading, setLoading] = useState(false);
 
-      useEffect(() => {
-        async function loadFromSheet() {
-          try {
-            // ⚠️ 네 스프레드시트 ID로 바꿔야 함
-            const sheetID = "YOUR_SHEET_ID_HERE";  
-            const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
-            const res = await fetch(url);
-            const text = await res.text();
-            const json = JSON.parse(text.substr(text.indexOf("{"), text.lastIndexOf("}") - text.indexOf("{") + 1));
-            const rows = json.table.rows;
+      // Spreadsheet info
+      const sheetID = "1YF0Rnn6SZxWpw2gqM57cSkAkcoIkPy1CvbBTSc9IfrQ";
+      const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
 
-            // ⚠️ 칼럼 순서 (폼 응답에 맞게 수정 가능)
-            const parsed = rows.map((r, idx) => ({
-              id: `f_sheet_${idx}`,
-              title: r.c[0]?.v || "Untitled",
-              description: r.c[1]?.v || "",
-              category: r.c[2]?.v || "General",
-              author: r.c[3]?.v || "Anonymous",
+      async function loadFromSheet() {
+        setLoading(true);
+        try {
+          const res = await fetch(gvizUrl);
+          if (!res.ok) throw new Error("Network error");
+          const text = await res.text();
+
+          const jsonText = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
+          const data = JSON.parse(jsonText);
+          const rows = data.table.rows || [];
+
+          const parsed = rows.map((r, idx) => {
+            const c = r.c || [];
+            return {
+              id: `f_sheet_${idx}_${(c[0] && String(c[0].v)) || idx}`,
+              title: (c[0] && String(c[0].v)) || "Untitled",
+              description: (c[1] && String(c[1].v)) || "",
+              category: (c[2] && String(c[2].v)) || "General",
+              author: (c[3] && String(c[3].v)) || "Anonymous",
               votes: 0,
               comments: [],
               createdAt: Date.now(),
-            }));
-            setItems(parsed);
-          } catch (e) {
-            console.error("Failed to load sheet data", e);
-          }
+            };
+          });
+
+          setItems(parsed);
+        } catch (e) {
+          console.error("Failed to load sheet data:", e);
+        } finally {
+          setLoading(false);
         }
+      }
+
+      useEffect(() => {
         loadFromSheet();
       }, []);
 
-      // 버튼 → 구글 폼으로 리다이렉트
       function handleAddFeedback() {
-        const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSccHFwMiejRMxQDIvgWbrCHQVmPlxAl5pVuGamh81DBvME1Aw/viewform";
+        const formUrl = "https://forms.gle/qKfVhJ58rpGCcujT7";
         window.location.href = formUrl;
       }
 
@@ -75,11 +82,11 @@
           res = res.filter((it) => it.title.toLowerCase().includes(qq) || it.description.toLowerCase().includes(qq));
         }
         if (sort === "hot") {
-          res = res.sort((a, b) => b.votes - a.votes || b.createdAt - a.createdAt);
+          res = res.slice().sort((a, b) => b.votes - a.votes || b.createdAt - a.createdAt);
         } else if (sort === "newest") {
-          res = res.sort((a, b) => b.createdAt - a.createdAt);
+          res = res.slice().sort((a, b) => b.createdAt - a.createdAt);
         } else if (sort === "votes") {
-          res = res.sort((a, b) => b.votes - a.votes);
+          res = res.slice().sort((a, b) => b.votes - a.votes);
         }
         return res;
       }
@@ -92,7 +99,7 @@
             <header className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-2xl font-bold">Feedback Board</h1>
-                <p className="text-sm text-gray-600">Community, GDPS Feedback Board for Upsilon GDPS.</p>
+                <p className="text-sm text-gray-600">Community feedback board for Upsilon GDPS.</p>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -100,6 +107,12 @@
                   className="px-4 py-2 bg-indigo-600 text-white rounded-md shadow hover:opacity-95"
                 >
                   Add Feedback
+                </button>
+                <button
+                  onClick={loadFromSheet}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-md shadow hover:opacity-95"
+                >
+                  {loading ? "Loading..." : "Refresh"}
                 </button>
               </div>
             </header>
@@ -136,6 +149,12 @@
                     </li>
                   ))}
                 </ul>
+
+                {items.length === 0 && (
+                  <div className="mt-6 text-center text-gray-500">
+                    No feedback loaded yet. Try clicking Refresh or check the spreadsheet sharing settings.
+                  </div>
+                )}
               </section>
 
               <aside className="p-4 bg-white rounded shadow-sm">
