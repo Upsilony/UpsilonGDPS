@@ -8,328 +8,163 @@
   <link rel="icon" href="https://nahhhh.ps.fhgdps.com/dashboard/icon.png" />
   <link rel="manifest" href="/manifest.json" />
 
-    <!-- TailwindCSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- React / ReactDOM / Babel CDN -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  </head>
-  <body class="bg-gray-50">
-    <div id="root"></div>
+  <!-- React / ReactDOM / Babel CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-gray-50">
+  <div id="root"></div>
 
-    <script type="text/babel">
-      const { useState, useEffect } = React;
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-      const STORAGE_KEY = "fider_like_feedback_v1";
+    function uid(prefix = "") {
+      return prefix + Math.random().toString(36).slice(2, 9);
+    }
 
-      function uid(prefix = "") {
-        return prefix + Math.random().toString(36).slice(2, 9);
+    function FeedbackBoard({ embed = false }) {
+      const [items, setItems] = useState([]);
+      const [q, setQ] = useState("");
+      const [category, setCategory] = useState("All");
+      const [sort, setSort] = useState("hot");
+
+      useEffect(() => {
+        async function loadFromSheet() {
+          try {
+            // ⚠️ 네 스프레드시트 ID로 바꿔야 함
+            const sheetID = "YOUR_SHEET_ID_HERE";  
+            const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
+            const res = await fetch(url);
+            const text = await res.text();
+            const json = JSON.parse(text.substr(text.indexOf("{"), text.lastIndexOf("}") - text.indexOf("{") + 1));
+            const rows = json.table.rows;
+
+            // ⚠️ 칼럼 순서 (폼 응답에 맞게 수정 가능)
+            const parsed = rows.map((r, idx) => ({
+              id: `f_sheet_${idx}`,
+              title: r.c[0]?.v || "Untitled",
+              description: r.c[1]?.v || "",
+              category: r.c[2]?.v || "General",
+              author: r.c[3]?.v || "Anonymous",
+              votes: 0,
+              comments: [],
+              createdAt: Date.now(),
+            }));
+            setItems(parsed);
+          } catch (e) {
+            console.error("Failed to load sheet data", e);
+          }
+        }
+        loadFromSheet();
+      }, []);
+
+      // 버튼 → 구글 폼으로 리다이렉트
+      function handleAddFeedback() {
+        const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSccHFwMiejRMxQDIvgWbrCHQVmPlxAl5pVuGamh81DBvME1Aw/viewform";
+        window.location.href = formUrl;
       }
 
-      function FeedbackBoard({ embed = false }) {
-        const [items, setItems] = useState(() => {
-          try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) return JSON.parse(raw);
-          } catch (e) {}
-          return [];
-        });
-
-        const [q, setQ] = useState("");
-        const [category, setCategory] = useState("All");
-        const [sort, setSort] = useState("hot"); // hot, newest, votes
-        const [showModal, setShowModal] = useState(false);
-        const [form, setForm] = useState({ title: "", description: "", category: "General", author: "" });
-
-        useEffect(() => {
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-          } catch (e) {}
-        }, [items]);
-
-        const categories = ["All", ...Array.from(new Set(items.map((i) => i.category)))];
-
-        function createFeedback(e) {
-          e.preventDefault();
-          const newItem = {
-            id: uid("f_"),
-            title: form.title || "Untitled",
-            description: form.description || "",
-            category: form.category || "General",
-            author: form.author || "Anonymous",
-            votes: 0,
-            comments: [],
-            createdAt: Date.now(),
-          };
-          setItems((s) => [newItem, ...s]);
-          setForm({ title: "", description: "", category: "General", author: "" });
-          setShowModal(false);
+      function filtered() {
+        let res = items.filter((it) => (category === "All" ? true : it.category === category));
+        if (q.trim()) {
+          const qq = q.toLowerCase();
+          res = res.filter((it) => it.title.toLowerCase().includes(qq) || it.description.toLowerCase().includes(qq));
         }
-
-        function toggleUpvote(id) {
-          const votedKey = STORAGE_KEY + "_voted";
-          const voted = JSON.parse(localStorage.getItem(votedKey) || "{}");
-          const has = !!voted[id];
-          if (has) {
-            delete voted[id];
-            setItems((s) => s.map((it) => (it.id === id ? { ...it, votes: Math.max(0, it.votes - 1) } : it)));
-          } else {
-            voted[id] = true;
-            setItems((s) => s.map((it) => (it.id === id ? { ...it, votes: it.votes + 1 } : it)));
-          }
-          localStorage.setItem(votedKey, JSON.stringify(voted));
+        if (sort === "hot") {
+          res = res.sort((a, b) => b.votes - a.votes || b.createdAt - a.createdAt);
+        } else if (sort === "newest") {
+          res = res.sort((a, b) => b.createdAt - a.createdAt);
+        } else if (sort === "votes") {
+          res = res.sort((a, b) => b.votes - a.votes);
         }
+        return res;
+      }
 
-        function addComment(id, text, author) {
-          if (!text) return;
-          setItems((s) =>
-            s.map((it) =>
-              it.id === id
-                ? { ...it, comments: [...it.comments, { id: uid("c_"), text, author: author || "Anonymous", createdAt: Date.now() }] }
-                : it
-            )
-          );
-        }
+      const categories = ["All", ...Array.from(new Set(items.map((i) => i.category)))];
 
-        function filtered() {
-          let res = items.filter((it) => (category === "All" ? true : it.category === category));
-          if (q.trim()) {
-            const qq = q.toLowerCase();
-            res = res.filter((it) => it.title.toLowerCase().includes(qq) || it.description.toLowerCase().includes(qq));
-          }
-          if (sort === "hot") {
-            res = res.sort((a, b) => b.votes - a.votes || b.createdAt - a.createdAt);
-          } else if (sort === "newest") {
-            res = res.sort((a, b) => b.createdAt - a.createdAt);
-          } else if (sort === "votes") {
-            res = res.sort((a, b) => b.votes - a.votes);
-          }
-          return res;
-        }
-
-        return (
-          <div className={embed ? "p-4 bg-white rounded-lg shadow" : "min-h-screen p-8 bg-gray-50"}>
-            <div className="max-w-5xl mx-auto">
-              <header className="flex items-center justify-between mb-6">
-                <div>
-                  <h1 className="text-2xl font-bold">Feedback Board</h1>
-                  <p className="text-sm text-gray-600">Community, GDPS Feedback Board for Upsilon GDPS.</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setShowModal(true)}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-md shadow hover:opacity-95"
-                  >
-                    Add Feedback
-                  </button>
-                </div>
-              </header>
-
-              <div className="flex gap-4 mb-6 flex-wrap">
-                <input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search or type a suggestion..."
-                  className="flex-1 min-w-[220px] p-2 border rounded"
-                />
-
-                <select value={category} onChange={(e) => setCategory(e.target.value)} className="p-2 border rounded">
-                  {categories.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-
-                <select value={sort} onChange={(e) => setSort(e.target.value)} className="p-2 border rounded">
-                  <option value="hot">Hot</option>
-                  <option value="newest">Newest</option>
-                  <option value="votes">Top votes</option>
-                </select>
+      return (
+        <div className={embed ? "p-4 bg-white rounded-lg shadow" : "min-h-screen p-8 bg-gray-50"}>
+          <div className="max-w-5xl mx-auto">
+            <header className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-2xl font-bold">Feedback Board</h1>
+                <p className="text-sm text-gray-600">Community, GDPS Feedback Board for Upsilon GDPS.</p>
               </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleAddFeedback}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-md shadow hover:opacity-95"
+                >
+                  Add Feedback
+                </button>
+              </div>
+            </header>
 
-              <main className="grid md:grid-cols-3 gap-4">
-                <section className="md:col-span-2">
-                  <ul className="space-y-3">
-                    {filtered().map((it) => (
-                      <li key={it.id} className="p-4 bg-white rounded shadow-sm flex gap-4">
-                        <div className="w-12 flex-shrink-0 flex flex-col items-center text-center">
-                          <button onClick={() => toggleUpvote(it.id)} className="px-2 py-1 rounded-md border">
-                            ▲
-                          </button>
-                          <div className="text-sm font-semibold">{it.votes}</div>
-                        </div>
-
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <h3 className="font-semibold">{it.title}</h3>
-                              <div className="text-xs text-gray-500">
-                                {it.category} • {new Date(it.createdAt).toLocaleDateString()} • by {it.author}
-                              </div>
-                            </div>
-                          </div>
-                          <p className="mt-2 text-sm text-gray-700">{it.description}</p>
-
-                          <details className="mt-3">
-                            <summary className="text-sm text-indigo-600 cursor-pointer">
-                              Comments ({it.comments.length})
-                            </summary>
-                            <div className="mt-2 space-y-2">
-                              {it.comments.map((c) => (
-                                <div key={c.id} className="text-sm p-2 bg-gray-50 rounded">
-                                  <strong>{c.author}:</strong> {c.text}
-                                </div>
-                              ))}
-
-                              <CommentForm onAdd={(txt, author) => addComment(it.id, txt, author)} />
-                            </div>
-                          </details>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-
-                <aside className="p-4 bg-white rounded shadow-sm">
-                  <h4 className="font-semibold">Summary</h4>
-                  <div className="mt-3 text-sm text-gray-700">
-                    Total suggestions: <strong>{items.length}</strong>
-                    <br />
-                    Total votes: <strong>{items.reduce((s, i) => s + i.votes, 0)}</strong>
-                  </div>
-
-                  <div className="mt-4">
-                    <h5 className="font-medium text-sm">Categories</h5>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {Array.from(new Set(items.map((i) => i.category))).map((c) => (
-                        <button
-                          key={c}
-                          onClick={() => setCategory(c)}
-                          className="px-2 py-1 border rounded text-sm"
-                        >
-                          {c}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </aside>
-              </main>
-
-              {showModal && (
-                <Modal onClose={() => setShowModal(false)}>
-                  <form onSubmit={createFeedback} className="space-y-3">
-                    <h3 className="text-lg font-semibold">New Feedback</h3>
-                    <div>
-                      <label className="block text-sm">Title</label>
-                      <input
-                        value={form.title}
-                        onChange={(e) => setForm((s) => ({ ...s, title: e.target.value }))}
-                        className="w-full p-2 border rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm">Description</label>
-                      <textarea
-                        value={form.description}
-                        onChange={(e) => setForm((s) => ({ ...s, description: e.target.value }))}
-                        className="w-full p-2 border rounded"
-                        rows={4}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm">Category</label>
-                      <input
-                        value={form.category}
-                        onChange={(e) => setForm((s) => ({ ...s, category: e.target.value }))}
-                        className="w-full p-2 border rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm">Your Nickname</label>
-                      <input
-                        value={form.author}
-                        onChange={(e) => setForm((s) => ({ ...s, author: e.target.value }))}
-                        className="w-full p-2 border rounded"
-                      />
-                    </div>
-
-                    <div className="flex gap-2 justify-end">
-                      <button
-                        type="button"
-                        onClick={() => setShowModal(false)}
-                        className="px-3 py-1 border rounded"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-4 py-2 bg-indigo-600 text-white rounded"
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </form>
-                </Modal>
-              )}
-            </div>
-          </div>
-        );
-      }
-
-      function Modal({ children, onClose }) {
-        useEffect(() => {
-          function onKey(e) {
-            if (e.key === "Escape") onClose();
-          }
-          document.addEventListener("keydown", onKey);
-          return () => document.removeEventListener("keydown", onKey);
-        }, [onClose]);
-
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-            <div className="relative z-10 w-full max-w-2xl p-6 bg-white rounded shadow">{children}</div>
-          </div>
-        );
-      }
-
-      function CommentForm({ onAdd }) {
-        const [txt, setTxt] = useState("");
-        const [author, setAuthor] = useState("");
-        return (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              onAdd(txt, author);
-              setTxt("");
-              setAuthor("");
-            }}
-            className="space-y-2"
-          >
-            <input
-              value={author}
-              onChange={(e) => setAuthor(e.target.value)}
-              className="w-full p-2 border rounded"
-              placeholder="Your nickname..."
-            />
-            <div className="flex gap-2">
+            <div className="flex gap-4 mb-6 flex-wrap">
               <input
-                value={txt}
-                onChange={(e) => setTxt(e.target.value)}
-                className="flex-1 p-2 border rounded"
-                placeholder="Write a comment..."
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search or type a suggestion..."
+                className="flex-1 min-w-[220px] p-2 border rounded"
               />
-              <button className="px-3 py-1 border rounded">Add</button>
+              <select value={category} onChange={(e) => setCategory(e.target.value)} className="p-2 border rounded">
+                {categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <select value={sort} onChange={(e) => setSort(e.target.value)} className="p-2 border rounded">
+                <option value="hot">Hot</option>
+                <option value="newest">Newest</option>
+                <option value="votes">Top votes</option>
+              </select>
             </div>
-          </form>
-        );
-      }
 
-      // Render main page
-      ReactDOM.createRoot(document.getElementById("root")).render(<FeedbackBoard />);
-    </script>
-  </body>
+            <main className="grid md:grid-cols-3 gap-4">
+              <section className="md:col-span-2">
+                <ul className="space-y-3">
+                  {filtered().map((it) => (
+                    <li key={it.id} className="p-4 bg-white rounded shadow-sm">
+                      <h3 className="font-semibold">{it.title}</h3>
+                      <div className="text-xs text-gray-500">
+                        {it.category} • by {it.author}
+                      </div>
+                      <p className="mt-2 text-sm text-gray-700">{it.description}</p>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <aside className="p-4 bg-white rounded shadow-sm">
+                <h4 className="font-semibold">Summary</h4>
+                <div className="mt-3 text-sm text-gray-700">
+                  Total suggestions: <strong>{items.length}</strong>
+                </div>
+                <div className="mt-4">
+                  <h5 className="font-medium text-sm">Categories</h5>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {Array.from(new Set(items.map((i) => i.category))).map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => setCategory(c)}
+                        className="px-2 py-1 border rounded text-sm"
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </aside>
+            </main>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<FeedbackBoard />);
+  </script>
+</body>
 </html>
