@@ -11,48 +11,15 @@
   <!-- TailwindCSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- React / ReactDOM / Babel CDN -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- Font Awesome Free CDN -->
-  <link 
-    rel="stylesheet" 
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" 
-    integrity="sha512-papx5+8FZ+c6+6K0Yk8l1R6Yk6G+ZpR7y1V0zH1s6Yl9xM2A1eT+eVfXq8Y5Y4aOZw+v7oWf8R9V+zK1a1f+OA==" 
-    crossorigin="anonymous" 
-    referrerpolicy="no-referrer" 
-  />
-
   <style>
-    /* 아이콘 충돌 방지 */
-    i.fas, i.fab {
-      font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
-      font-weight: 900; /* solid weight */
-    }
-
     /* hover 위로 올라가는 애니메이션 */
-    .hover-up:hover {
-      transform: translateY(-4px);
-    }
-
-    /* 아이콘 회전 애니메이션 */
-    .spin-on-hover:hover i {
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg);}
-      100% { transform: rotate(360deg);}
-    }
+    .hover-up:hover { transform: translateY(-4px); }
 
     /* 버튼 그라데이션 애니메이션 */
     .gradient-animate {
       background-size: 200% 200%;
       animation: gradientFlow 3s ease infinite;
     }
-
     @keyframes gradientFlow {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -60,7 +27,7 @@
     }
   </style>
 </head>
-<body class="bg-gray-50 transition-colors duration-300 text-black">
+<body class="bg-gray-50 text-black transition-colors duration-300">
   <div id="root"></div>
 
   <script type="text/babel">
@@ -110,8 +77,13 @@
 
       useEffect(() => { loadFromSheet(); }, []);
 
-      function handleAddFeedback() {
-        window.location.href = "https://forms.gle/qKfVhJ58rpGCcujT7";
+      function handleAddFeedback() { window.location.href = "https://forms.gle/qKfVhJ58rpGCcujT7"; }
+      function toggleDarkMode() {
+        setDarkMode(!darkMode);
+        document.body.classList.toggle("bg-gray-900");
+        document.body.classList.toggle("text-white");
+        document.body.classList.toggle("bg-gray-50");
+        document.body.classList.toggle("text-black");
       }
 
       function filtered() {
@@ -129,14 +101,6 @@
 
       const categories = ["All", ...Array.from(new Set(items.map(i => i.category)))];
 
-      function toggleDarkMode() {
-        setDarkMode(!darkMode);
-        document.body.classList.toggle("bg-gray-900");
-        document.body.classList.toggle("text-white");
-        document.body.classList.toggle("bg-gray-50");
-        document.body.classList.toggle("text-black");
-      }
-
       const buttonClasses = "px-4 py-2 rounded-md shadow flex items-center gap-2 transform transition-transform duration-200 hover-up gradient-animate text-white";
 
       return (
@@ -144,41 +108,59 @@
           <div className="max-w-5xl mx-auto w-full">
             <header className="flex items-center justify-between mb-6 flex-wrap gap-2">
               <div>
-                <h1 className="text-2xl font-bold">{darkMode ? <span className="text-white">Feedback Board</span> : <span className="text-black">Feedback Board</span>}</h1>
+                <h1 className="text-2xl font-bold">Feedback Board</h1>
                 <p className={darkMode ? "text-gray-300" : "text-gray-600"}>Community feedback board for Upsilon GDPS. Data-read only.</p>
               </div>
               <div className="flex items-center gap-3 flex-wrap">
                 <button
                   onClick={handleAddFeedback}
-                  className={`${buttonClasses} bg-gradient-to-r from-indigo-500 to-purple-500 spin-on-hover`}
+                  className={`${buttonClasses} bg-gradient-to-r from-indigo-500 to-purple-500`}
                 >
-                  <i className="fas fa-plus"></i> Add Feedback
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/>
+                  </svg>
+                  Add Feedback
                 </button>
 
                 <button
                   onClick={loadFromSheet}
-                  className={`${buttonClasses} bg-gradient-to-r from-gray-600 to-gray-800 spin-on-hover`}
+                  className={`${buttonClasses} bg-gradient-to-r from-gray-600 to-gray-800`}
                 >
-                  <i className="fas fa-sync"></i> {loading ? "Loading..." : "Refresh"}
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v6h6M20 20v-6h-6"/>
+                  </svg>
+                  {loading ? "Loading..." : "Refresh"}
                 </button>
 
                 <button
                   onClick={toggleDarkMode}
                   className={`${buttonClasses} bg-gradient-to-r from-yellow-400 to-orange-500`}
                 >
-                  <i className={`fas ${darkMode ? "fa-sun" : "fa-moon"}`}></i> {darkMode ? "Light Mode" : "Dark Mode"}
+                  {darkMode ? 
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m8.485-8.485h1M3.515 12.515h1m12.728-5.657l.707.707M5.05 18.364l.707.707m0-12.728l-.707.707M18.364 18.364l-.707.707"/></svg>
+                    :
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3C7.03 3 3 7.03 3 12c0 4.97 4.03 9 9 9 4.97 0 9-4.03 9-9 0-4.97-4.03-9-9-9z"/></svg>
+                  }
+                  {darkMode ? " Light Mode" : " Dark Mode"}
                 </button>
 
                 <a href="/" className={`${buttonClasses} bg-gradient-to-r from-green-400 to-green-600`}>
-                  <i className="fas fa-home"></i> Home
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l9-9 9 9M4 10v10h16V10"/>
+                  </svg>
+                  Home
                 </a>
 
                 <a href="https://discord.gg/cY8jBwKZkM" target="_blank" className={`${buttonClasses} bg-gradient-to-r from-blue-500 to-blue-700`}>
-                  <i className="fab fa-discord"></i> Discord
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 3H4a1 1 0 00-1 1v16a1 1 0 001 1h16a1 1 0 001-1V4a1 1 0 00-1-1zm-9 14l-4-4 1.414-1.414L11 14.172l5.586-5.586L18 10l-7 7z"/>
+                  </svg>
+                  Discord
                 </a>
               </div>
             </header>
 
+            <!-- 검색 & 카테고리 -->
             <div className="flex gap-4 mb-6 flex-wrap">
               <input
                 value={q}
@@ -195,6 +177,7 @@
               </select>
             </div>
 
+            <!-- 피드백 리스트 & 요약 -->
             <main className="grid md:grid-cols-3 gap-4 flex-1">
               <section className="md:col-span-2">
                 <ul className="space-y-3">
