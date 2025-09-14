@@ -26,6 +26,12 @@
   />
 
   <style>
+    /* 아이콘 충돌 방지 */
+    i.fas, i.fab {
+      font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+      font-weight: 900; /* solid weight */
+    }
+
     /* hover 위로 올라가는 애니메이션 */
     .hover-up:hover {
       transform: translateY(-4px);
@@ -222,7 +228,9 @@
                       <button
                         key={c}
                         onClick={() => setCategory(c)}
-                        className={`${buttonClasses} bg-gradient-to-r from-purple-400 to-purple-600 text-sm`}
+                        className={`px-3 py-1 rounded-md shadow flex items-center gap-2 transform transition-transform duration-200 hover-up gradient-animate text-white
+                          ${darkMode ? "bg-gradient-to-r from-purple-700 to-purple-900" : "bg-gradient-to-r from-purple-400 to-purple-600"}
+                        `}
                       >
                         {c}
                       </button>
@@ -233,7 +241,6 @@
             </main>
           </div>
 
-          {/* Footer credit */}
           <footer className={`mt-6 text-center py-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
             © 2025 Upsilon GDPS
           </footer>
