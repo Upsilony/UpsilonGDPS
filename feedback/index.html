@@ -6,7 +6,6 @@
   <meta name="description" content="Upsilon GDPS - A Geometry Dash Private Server focused on your dream." />
   <title>Upsilon GDPS | Feedback Board</title>
   <link rel="icon" href="https://nahhhh.ps.fhgdps.com/dashboard/icon.png" />
-  <link rel="manifest" href="/manifest.json" />
 
   <!-- TailwindCSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -98,7 +97,7 @@
       }
 
       const categories = ["All", ...Array.from(new Set(items.map(i => i.category)))];
-      const buttonClasses = "px-4 py-2 rounded-md shadow transform transition-transform duration-200 hover-up gradient-animate text-white flex flex-col items-center gap-1 text-center";
+      const buttonClasses = "px-4 py-2 rounded-md shadow transform transition-transform duration-200 hover-up gradient-animate text-white flex flex-row items-center gap-2 justify-center text-center";
 
       return (
         <div className={embed ? "p-4 bg-white rounded-lg shadow" : `min-h-screen flex flex-col justify-between p-8 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-black"}`}>
@@ -117,12 +116,19 @@
                 Menu
               </button>
 
-              {/* 버튼 그룹 */}
-              <div className={`absolute top-full left-0 w-full flex flex-col gap-2 p-2 sm:static sm:flex sm:flex-row sm:gap-3 sm:p-0 sm:shadow-none
+              {/* PC 버튼 그룹: 가로 */}
+              <div className="hidden sm:flex sm:flex-row sm:gap-3">
+                <button onClick={handleAddFeedback} className={`${buttonClasses} bg-gradient-to-r from-indigo-500 to-purple-500`}>Add Feedback</button>
+                <button onClick={loadFromSheet} className={`${buttonClasses} bg-gradient-to-r from-gray-600 to-gray-800`}>{loading ? "Loading..." : "Refresh"}</button>
+                <button onClick={toggleDarkMode} className={`${buttonClasses} bg-gradient-to-r from-yellow-400 to-orange-500`}>{darkMode ? "Light Mode" : "Dark Mode"}</button>
+                <a href="/" className={`${buttonClasses} bg-gradient-to-r from-green-400 to-green-600`}>Home</a>
+                <a href="https://discord.gg/cY8jBwKZkM" target="_blank" className={`${buttonClasses} bg-gradient-to-r from-blue-500 to-blue-700`}>Discord</a>
+              </div>
+
+              {/* 모바일 버튼 그룹: 세로 슬라이드 */}
+              <div className={`sm:hidden flex flex-col gap-2 p-2 transition-all duration-300 overflow-hidden
                 ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}
-                transition-all duration-300 overflow-hidden
-                ${menuOpen ? "max-h-[1000px]" : "max-h-0"}
-              `}>
+                ${menuOpen ? "max-h-[1000px]" : "max-h-0"}`}>
                 <button onClick={handleAddFeedback} className={`${buttonClasses} bg-gradient-to-r from-indigo-500 to-purple-500`}>Add Feedback</button>
                 <button onClick={loadFromSheet} className={`${buttonClasses} bg-gradient-to-r from-gray-600 to-gray-800`}>{loading ? "Loading..." : "Refresh"}</button>
                 <button onClick={toggleDarkMode} className={`${buttonClasses} bg-gradient-to-r from-yellow-400 to-orange-500`}>{darkMode ? "Light Mode" : "Dark Mode"}</button>
@@ -180,7 +186,7 @@
                       <button
                         key={c}
                         onClick={() => setCategory(c)}
-                        className={`px-3 py-1 rounded-md shadow flex flex-col items-center gap-1 transform transition-transform duration-200 hover-up gradient-animate text-white
+                        className={`px-3 py-1 rounded-md shadow flex flex-row items-center gap-2 transform transition-transform duration-200 hover-up gradient-animate text-white
                           ${darkMode ? "bg-gradient-to-r from-purple-700 to-purple-900" : "bg-gradient-to-r from-purple-400 to-purple-600"}
                         `}
                       >
