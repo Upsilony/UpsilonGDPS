@@ -47,11 +47,11 @@
           const parsed = rows.map((r, idx) => {
             const c = r.c || [];
             return {
-              id: `f_sheet_${idx}_${(c[0] && String(c[0].v)) || idx}`,
-              title: (c[0] && String(c[0].v)) || "Untitled",
-              description: (c[1] && String(c[1].v)) || "",
-              category: (c[2] && String(c[2].v)) || "General",
-              author: (c[3] && String(c[3].v)) || "Anonymous",
+              id: `f_sheet_${idx}_${idx}`,
+              nickname: (c[1] && String(c[1].v)) || "Nickname missing", // B열
+              title: (c[2] && String(c[2].v)) || "Untitled",            // C열
+              category: (c[3] && String(c[3].v)) || "General",          // D열
+              feedback: (c[4] && String(c[4].v)) || "",                 // E열
               votes: 0,
               comments: [],
               createdAt: Date.now(),
@@ -79,7 +79,12 @@
         let res = items.filter((it) => (category === "All" ? true : it.category === category));
         if (q.trim()) {
           const qq = q.toLowerCase();
-          res = res.filter((it) => it.title.toLowerCase().includes(qq) || it.description.toLowerCase().includes(qq));
+          res = res.filter(
+            (it) =>
+              it.title.toLowerCase().includes(qq) ||
+              it.feedback.toLowerCase().includes(qq) ||
+              it.nickname.toLowerCase().includes(qq)
+          );
         }
         if (sort === "hot") {
           res = res.slice().sort((a, b) => b.votes - a.votes || b.createdAt - a.createdAt);
@@ -121,7 +126,7 @@
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search or type a suggestion..."
+                placeholder="Search feedback..."
                 className="flex-1 min-w-[220px] p-2 border rounded"
               />
               <select value={category} onChange={(e) => setCategory(e.target.value)} className="p-2 border rounded">
@@ -143,9 +148,9 @@
                     <li key={it.id} className="p-4 bg-white rounded shadow-sm">
                       <h3 className="font-semibold">{it.title}</h3>
                       <div className="text-xs text-gray-500">
-                        {it.category} • by {it.author}
+                        <strong>Category:</strong> {it.category} • <strong>Nickname:</strong> {it.nickname}
                       </div>
-                      <p className="mt-2 text-sm text-gray-700">{it.description}</p>
+                      <p className="mt-2 text-sm text-gray-700">{it.feedback}</p>
                     </li>
                   ))}
                 </ul>
