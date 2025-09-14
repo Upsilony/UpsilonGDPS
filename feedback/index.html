@@ -26,7 +26,6 @@
       const [items, setItems] = useState([]);
       const [q, setQ] = useState("");
       const [category, setCategory] = useState("All");
-      const [sort, setSort] = useState("hot");
       const [loading, setLoading] = useState(false);
 
       // Spreadsheet info
@@ -86,13 +85,6 @@
               it.nickname.toLowerCase().includes(qq)
           );
         }
-        if (sort === "hot") {
-          res = res.slice().sort((a, b) => b.votes - a.votes || b.createdAt - a.createdAt);
-        } else if (sort === "newest") {
-          res = res.slice().sort((a, b) => b.createdAt - a.createdAt);
-        } else if (sort === "votes") {
-          res = res.slice().sort((a, b) => b.votes - a.votes);
-        }
         return res;
       }
 
@@ -134,11 +126,6 @@
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
-              <select value={sort} onChange={(e) => setSort(e.target.value)} className="p-2 border rounded">
-                <option value="hot">Hot</option>
-                <option value="newest">Newest</option>
-                <option value="votes">Top votes</option>
-              </select>
             </div>
 
             <main className="grid md:grid-cols-3 gap-4">
@@ -157,7 +144,7 @@
 
                 {items.length === 0 && (
                   <div className="mt-6 text-center text-gray-500">
-                    No feedback loaded yet. Try clicking Refresh or check the spreadsheet sharing settings.
+                    No feedback loaded yet. Try clicking Refresh or refresh your browser.
                   </div>
                 )}
               </section>
