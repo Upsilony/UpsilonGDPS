@@ -3,25 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FA Test</title>
+  <meta name="description" content="Upsilon GDPS - A Geometry Dash Private Server focused on your dream." />
+  <title>Upsilon GDPS | Feedback Board</title>
+  <link rel="icon" href="https://nahhhh.ps.fhgdps.com/dashboard/icon.png" />
+  <link rel="manifest" href="/manifest.json" />
 
-  <!-- Tailwind -->
+  <!-- TailwindCSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Font Awesome Free CDN -->
-  <link 
-    rel="stylesheet" 
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" 
-    integrity="sha512-papx5+8FZ+c6+6K0Yk8l1R6Yk6G+ZpR7y1V0zH1s6Yl9xM2A1eT+eVfXq8Y5Y4aOZw+v7oWf8R9V+zK1a1f+OA==" 
-    crossorigin="anonymous" 
-    referrerpolicy="no-referrer" 
-  />
-
   <style>
-    i.fas, i.fab {
-      font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
-      font-weight: 900;
-    }
     .hover-up:hover { transform: translateY(-4px); }
     .gradient-animate {
       background-size: 200% 200%;
@@ -34,19 +24,177 @@
     }
   </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+<body class="bg-gray-50 text-black transition-colors duration-300">
+  <div id="root"></div>
 
-  <button class="px-4 py-2 rounded-md text-white hover-up gradient-animate bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center gap-2">
-    <i class="fas fa-plus"></i> Add Feedback
-  </button>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-  <button class="px-4 py-2 rounded-md text-white hover-up gradient-animate bg-gradient-to-r from-gray-600 to-gray-800 flex items-center gap-2 ml-4">
-    <i class="fas fa-sync"></i> Refresh
-  </button>
+    function FeedbackBoard({ embed = false }) {
+      const [items, setItems] = useState([]);
+      const [q, setQ] = useState("");
+      const [category, setCategory] = useState("All");
+      const [loading, setLoading] = useState(false);
+      const [darkMode, setDarkMode] = useState(false);
 
-  <button class="px-4 py-2 rounded-md text-white hover-up gradient-animate bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center gap-2 ml-4">
-    <i class="fas fa-moon"></i> Dark Mode
-  </button>
+      const sheetID = "1YF0Rnn6SZxWpw2gqM57cSkAkcoIkPy1CvbBTSc9IfrQ";
+      const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
 
+      async function loadFromSheet() {
+        setLoading(true);
+        try {
+          const res = await fetch(gvizUrl);
+          if (!res.ok) throw new Error("Network error");
+          const text = await res.text();
+          const jsonText = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
+          const data = JSON.parse(jsonText);
+          const rows = data.table.rows || [];
+
+          const parsed = rows.map((r, idx) => {
+            const c = r.c || [];
+            return {
+              id: `f_sheet_${idx}_${idx}`,
+              nickname: (c[1] && String(c[1].v)) || "Nickname missing",
+              title: (c[2] && String(c[2].v)) || "Untitled",
+              category: (c[3] && String(c[3].v)) || "General",
+              feedback: (c[4] && String(c[4].v)) || "",
+              votes: 0,
+              comments: [],
+              createdAt: Date.now(),
+            };
+          });
+
+          setItems(parsed);
+        } catch (e) {
+          console.error("Failed to load sheet data:", e);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      useEffect(() => { loadFromSheet(); }, []);
+
+      function handleAddFeedback() { window.location.href = "https://forms.gle/qKfVhJ58rpGCcujT7"; }
+      function toggleDarkMode() {
+        setDarkMode(!darkMode);
+        document.body.classList.toggle("bg-gray-900");
+        document.body.classList.toggle("text-white");
+        document.body.classList.toggle("bg-gray-50");
+        document.body.classList.toggle("text-black");
+      }
+
+      function filtered() {
+        let res = items.filter(it => (category === "All" ? true : it.category === category));
+        if (q.trim()) {
+          const qq = q.toLowerCase();
+          res = res.filter(it =>
+            it.title.toLowerCase().includes(qq) ||
+            it.feedback.toLowerCase().includes(qq) ||
+            it.nickname.toLowerCase().includes(qq)
+          );
+        }
+        return res;
+      }
+
+      const categories = ["All", ...Array.from(new Set(items.map(i => i.category)))];
+      const buttonClasses = "px-4 py-2 rounded-md shadow transform transition-transform duration-200 hover-up gradient-animate text-white flex-1 text-center";
+
+      return (
+        <div className={embed ? "p-4 bg-white rounded-lg shadow" : `min-h-screen flex flex-col justify-between p-8 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-black"}`}>
+          <div className="max-w-5xl mx-auto w-full">
+            <header className="flex items-center justify-between mb-6 flex-wrap gap-2">
+              <div>
+                <h1 className="text-2xl font-bold">Feedback Board</h1>
+                <p className={darkMode ? "text-gray-300" : "text-gray-600"}>Community feedback board for Upsilon GDPS. Data-read only.</p>
+              </div>
+              <div className="flex items-center gap-3 flex-wrap">
+                <button onClick={handleAddFeedback} className={`${buttonClasses} bg-gradient-to-r from-indigo-500 to-purple-500`}>
+                  Add Feedback
+                </button>
+                <button onClick={loadFromSheet} className={`${buttonClasses} bg-gradient-to-r from-gray-600 to-gray-800`}>
+                  {loading ? "Loading..." : "Refresh"}
+                </button>
+                <button onClick={toggleDarkMode} className={`${buttonClasses} bg-gradient-to-r from-yellow-400 to-orange-500`}>
+                  {darkMode ? "Light Mode" : "Dark Mode"}
+                </button>
+                <a href="/" className={`${buttonClasses} bg-gradient-to-r from-green-400 to-green-600`}>Home</a>
+                <a href="https://discord.gg/cY8jBwKZkM" target="_blank" className={`${buttonClasses} bg-gradient-to-r from-blue-500 to-blue-700`}>Discord</a>
+              </div>
+            </header>
+
+            <div className="flex gap-4 mb-6 flex-wrap">
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search feedback..."
+                className={`flex-1 min-w-[220px] p-2 border rounded ${darkMode ? "bg-gray-800 text-white border-gray-600" : "bg-white text-black border-gray-300"}`}
+              />
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className={`p-2 border rounded ${darkMode ? "bg-gray-800 text-white border-gray-600" : "bg-white text-black border-gray-300"}`}
+              >
+                {categories.map((c) => (<option key={c} value={c}>{c}</option>))}
+              </select>
+            </div>
+
+            <main className="grid md:grid-cols-3 gap-4 flex-1">
+              <section className="md:col-span-2">
+                <ul className="space-y-3">
+                  {filtered().map((it) => (
+                    <li key={it.id} className={`p-4 rounded shadow-sm transition-colors ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}`}>
+                      <h3 className="font-semibold">{it.title}</h3>
+                      <div className={darkMode ? "text-gray-400 text-xs" : "text-gray-500 text-xs"}>
+                        <strong>Category:</strong> {it.category} • <strong>Nickname:</strong> {it.nickname}
+                      </div>
+                      <p className={darkMode ? "text-gray-300 mt-2 text-sm" : "text-gray-700 mt-2 text-sm"}>{it.feedback}</p>
+                    </li>
+                  ))}
+                </ul>
+
+                {items.length === 0 && (
+                  <div className={darkMode ? "mt-6 text-center text-gray-400" : "mt-6 text-center text-gray-500"}>
+                    No feedback loaded yet. Try clicking Refresh or refresh your browser.
+                  </div>
+                )}
+              </section>
+
+              <aside className={`p-4 rounded shadow-sm ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}`}>
+                <h4 className="font-semibold">Summary</h4>
+                <div className={`mt-3 text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  Total suggestions: <strong>{items.length}</strong>
+                </div>
+                <div className="mt-4">
+                  <h5 className="font-medium text-sm">Categories</h5>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {Array.from(new Set(items.map((i) => i.category))).map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => setCategory(c)}
+                        className={`px-3 py-1 rounded-md shadow flex items-center gap-2 transform transition-transform duration-200 hover-up gradient-animate text-white
+                          ${darkMode ? "bg-gradient-to-r from-purple-700 to-purple-900" : "bg-gradient-to-r from-purple-400 to-purple-600"}
+                        `}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </aside>
+            </main>
+          </div>
+
+          <footer className={`mt-6 text-center py-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+            © 2025 Upsilon GDPS
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<FeedbackBoard />);
+  </script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </body>
 </html>
