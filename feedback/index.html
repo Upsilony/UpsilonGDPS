@@ -116,7 +116,7 @@
                 Menu
               </button>
 
-              {/* PC 버튼 그룹: 가로 */}
+              {/* PC 버튼 그룹 */}
               <div className="hidden sm:flex sm:flex-row sm:gap-3">
                 <button onClick={handleAddFeedback} className={`${buttonClasses} bg-gradient-to-r from-indigo-500 to-purple-500`}>Add Feedback</button>
                 <button onClick={loadFromSheet} className={`${buttonClasses} bg-gradient-to-r from-gray-600 to-gray-800`}>{loading ? "Loading..." : "Refresh"}</button>
@@ -125,10 +125,14 @@
                 <a href="https://discord.gg/cY8jBwKZkM" target="_blank" className={`${buttonClasses} bg-gradient-to-r from-blue-500 to-blue-700`}>Discord</a>
               </div>
 
-              {/* 모바일 버튼 그룹: 세로 슬라이드 */}
-              <div className={`sm:hidden flex flex-col gap-2 p-2 transition-all duration-300 overflow-hidden
-                ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}
-                ${menuOpen ? "max-h-[1000px]" : "max-h-0"}`}>
+              {/* 모바일 메뉴 슬라이드 + 그림자 + 배경 애니메이션 */}
+              <div
+                className={`sm:hidden flex flex-col gap-2 overflow-hidden transition-all duration-500
+                  ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}
+                  ${menuOpen ? "max-h-[1000px] py-2 shadow-lg" : "max-h-0 py-0 shadow-none"}
+                  transition-colors duration-500
+                `}
+              >
                 <button onClick={handleAddFeedback} className={`${buttonClasses} bg-gradient-to-r from-indigo-500 to-purple-500`}>Add Feedback</button>
                 <button onClick={loadFromSheet} className={`${buttonClasses} bg-gradient-to-r from-gray-600 to-gray-800`}>{loading ? "Loading..." : "Refresh"}</button>
                 <button onClick={toggleDarkMode} className={`${buttonClasses} bg-gradient-to-r from-yellow-400 to-orange-500`}>{darkMode ? "Light Mode" : "Dark Mode"}</button>
