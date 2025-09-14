@@ -15,8 +15,11 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Font Awesome -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 transition-colors duration-300">
   <div id="root"></div>
 
   <script type="text/babel">
@@ -27,8 +30,8 @@
       const [q, setQ] = useState("");
       const [category, setCategory] = useState("All");
       const [loading, setLoading] = useState(false);
+      const [darkMode, setDarkMode] = useState(false);
 
-      // Spreadsheet info
       const sheetID = "1YF0Rnn6SZxWpw2gqM57cSkAkcoIkPy1CvbBTSc9IfrQ";
       const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
 
@@ -38,7 +41,6 @@
           const res = await fetch(gvizUrl);
           if (!res.ok) throw new Error("Network error");
           const text = await res.text();
-
           const jsonText = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
           const data = JSON.parse(jsonText);
           const rows = data.table.rows || [];
@@ -47,10 +49,10 @@
             const c = r.c || [];
             return {
               id: `f_sheet_${idx}_${idx}`,
-              nickname: (c[1] && String(c[1].v)) || "Nickname missing", // B열
-              title: (c[2] && String(c[2].v)) || "Untitled",            // C열
-              category: (c[3] && String(c[3].v)) || "General",          // D열
-              feedback: (c[4] && String(c[4].v)) || "",                 // E열
+              nickname: (c[1] && String(c[1].v)) || "Nickname missing",
+              title: (c[2] && String(c[2].v)) || "Untitled",
+              category: (c[3] && String(c[3].v)) || "General",
+              feedback: (c[4] && String(c[4].v)) || "",
               votes: 0,
               comments: [],
               createdAt: Date.now(),
@@ -65,52 +67,66 @@
         }
       }
 
-      useEffect(() => {
-        loadFromSheet();
-      }, []);
+      useEffect(() => { loadFromSheet(); }, []);
 
       function handleAddFeedback() {
-        const formUrl = "https://forms.gle/qKfVhJ58rpGCcujT7";
-        window.location.href = formUrl;
+        window.location.href = "https://forms.gle/qKfVhJ58rpGCcujT7";
       }
 
       function filtered() {
-        let res = items.filter((it) => (category === "All" ? true : it.category === category));
+        let res = items.filter(it => (category === "All" ? true : it.category === category));
         if (q.trim()) {
           const qq = q.toLowerCase();
-          res = res.filter(
-            (it) =>
-              it.title.toLowerCase().includes(qq) ||
-              it.feedback.toLowerCase().includes(qq) ||
-              it.nickname.toLowerCase().includes(qq)
+          res = res.filter(it =>
+            it.title.toLowerCase().includes(qq) ||
+            it.feedback.toLowerCase().includes(qq) ||
+            it.nickname.toLowerCase().includes(qq)
           );
         }
         return res;
       }
 
-      const categories = ["All", ...Array.from(new Set(items.map((i) => i.category)))];
+      const categories = ["All", ...Array.from(new Set(items.map(i => i.category)))];
+
+      function toggleDarkMode() {
+        setDarkMode(!darkMode);
+        document.body.classList.toggle("bg-gray-900");
+        document.body.classList.toggle("text-white");
+      }
 
       return (
-        <div className={embed ? "p-4 bg-white rounded-lg shadow" : "min-h-screen p-8 bg-gray-50"}>
+        <div className={embed ? "p-4 bg-white rounded-lg shadow" : `min-h-screen p-8 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50"}`}>
           <div className="max-w-5xl mx-auto">
-            <header className="flex items-center justify-between mb-6">
+            <header className="flex items-center justify-between mb-6 flex-wrap gap-2">
               <div>
                 <h1 className="text-2xl font-bold">Feedback Board</h1>
-                <p className="text-sm text-gray-600">Community feedback board for Upsilon GDPS. Data-read only.</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Community feedback board for Upsilon GDPS. Data-read only.</p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <button
                   onClick={handleAddFeedback}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-md shadow hover:opacity-95"
+                  className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-md shadow hover:from-purple-500 hover:to-indigo-500 transition-colors flex items-center gap-2"
                 >
-                  Add Feedback
+                  <i className="fas fa-plus"></i> Add Feedback
                 </button>
                 <button
                   onClick={loadFromSheet}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-md shadow hover:opacity-95"
+                  className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-800 text-white rounded-md shadow hover:from-gray-800 hover:to-gray-600 transition-colors flex items-center gap-2"
                 >
-                  {loading ? "Loading..." : "Refresh"}
+                  <i className="fas fa-sync-alt"></i> {loading ? "Loading..." : "Refresh"}
                 </button>
+                <button
+                  onClick={toggleDarkMode}
+                  className="px-3 py-2 bg-gray-400 dark:bg-gray-700 rounded-md text-white flex items-center gap-2 hover:bg-gray-500 dark:hover:bg-gray-600 transition-colors"
+                >
+                  <i className={`fas ${darkMode ? "fa-sun" : "fa-moon"}`}></i> {darkMode ? "Light Mode" : "Dark Mode"}
+                </button>
+                <a href="/" className="px-3 py-2 bg-green-500 rounded-md text-white flex items-center gap-2 hover:bg-green-600 transition-colors">
+                  <i className="fas fa-home"></i> Home
+                </a>
+                <a href="https://discord.gg/cY8jBwKZkM" target="_blank" className="px-3 py-2 bg-blue-600 rounded-md text-white flex items-center gap-2 hover:bg-blue-700 transition-colors">
+                  <i className="fab fa-discord"></i> Discord
+                </a>
               </div>
             </header>
 
@@ -119,9 +135,9 @@
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search feedback..."
-                className="flex-1 min-w-[220px] p-2 border rounded"
+                className="flex-1 min-w-[220px] p-2 border rounded dark:bg-gray-800 dark:text-white dark:border-gray-600"
               />
-              <select value={category} onChange={(e) => setCategory(e.target.value)} className="p-2 border rounded">
+              <select value={category} onChange={(e) => setCategory(e.target.value)} className="p-2 border rounded dark:bg-gray-800 dark:text-white dark:border-gray-600">
                 {categories.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
@@ -132,26 +148,26 @@
               <section className="md:col-span-2">
                 <ul className="space-y-3">
                   {filtered().map((it) => (
-                    <li key={it.id} className="p-4 bg-white rounded shadow-sm">
+                    <li key={it.id} className="p-4 bg-white dark:bg-gray-800 rounded shadow-sm transition-colors">
                       <h3 className="font-semibold">{it.title}</h3>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         <strong>Category:</strong> {it.category} • <strong>Nickname:</strong> {it.nickname}
                       </div>
-                      <p className="mt-2 text-sm text-gray-700">{it.feedback}</p>
+                      <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">{it.feedback}</p>
                     </li>
                   ))}
                 </ul>
 
                 {items.length === 0 && (
-                  <div className="mt-6 text-center text-gray-500">
+                  <div className="mt-6 text-center text-gray-500 dark:text-gray-400">
                     No feedback loaded yet. Try clicking Refresh or refresh your browser.
                   </div>
                 )}
               </section>
 
-              <aside className="p-4 bg-white rounded shadow-sm">
+              <aside className="p-4 bg-white dark:bg-gray-800 rounded shadow-sm">
                 <h4 className="font-semibold">Summary</h4>
-                <div className="mt-3 text-sm text-gray-700">
+                <div className="mt-3 text-sm text-gray-700 dark:text-gray-300">
                   Total suggestions: <strong>{items.length}</strong>
                 </div>
                 <div className="mt-4">
@@ -161,7 +177,7 @@
                       <button
                         key={c}
                         onClick={() => setCategory(c)}
-                        className="px-2 py-1 border rounded text-sm"
+                        className="px-2 py-1 border rounded text-sm dark:border-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                       >
                         {c}
                       </button>
