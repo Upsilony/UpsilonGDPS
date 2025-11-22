@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://i.link1.pw/uploads/68aabba4053b7_cropped_circle_image%20(1).png" width="40"/>
+  <img src="https://nahhhh.ps.fhgdps.com/dashboard/icon.png" width="40"/>
   Upsilon GDPS
 </h1>
 
