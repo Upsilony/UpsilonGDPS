@@ -21,7 +21,7 @@
 
 **Focused on your dream**, Not the **worst**. Not the **best**.
 
-- ❤️‍🔥 Partnered with **[FreedomGDPS!!11](https://github.com/flessan/FrGDPS/)**
+- ❤️‍🔥 Partnered with **[GDIPS](https://github.com/flessan/GDIPS/)**
 - 🌟 **Low** rate standards with your **good levels**
 - 👤 Better **user support**
 
@@ -89,4 +89,4 @@
 ---
 
 © 2025 Upsilon GDPS by Upsilony. All rights reserved.  
-Inspired from FreedomGDPS!!11 README.md.
+Inspired from GDIPS README.md.
