@@ -56,6 +56,7 @@
 ### Lists
 📚 [Demon List](https://upsilongdpsdl.pages.dev/)  
 📚 [Challenge List](https://upsilongdpscl.pages.dev/)  
+📚 [Platformer List](https://upsilongdpspl.pages.dev/)  
 
 ### Social 
 🔗 [Discord Server](https://discord.gg/cY8jBwKZkM/)  
