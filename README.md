@@ -9,7 +9,7 @@
 
 <div align="center">
   
-  [![GDPS Version](https://img.shields.io/badge/version-1.1-pink)](https://fless.rf.gd/download.php)
+  [![GDPS Version](https://img.shields.io/badge/version-1.1-pink)](https://upsilongdps.netlify.app/download)
   [![Server Status](https://img.shields.io/badge/status-🟢_Alive-green)](https://stats.uptimerobot.com/wpCeS1LMcH)
   [![Community Age](https://img.shields.io/badge/active_since-2024_September-blue)]()
 
